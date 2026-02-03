@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'theme.dart';
 import 'screens/chat_screen.dart';
 import 'services/research_service.dart';
 
@@ -18,23 +20,17 @@ class IntelliResearchApp extends StatelessWidget {
       child: MaterialApp(
         title: 'IntelliResearch AI',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF6B46C1), // Deep purple
-            brightness: Brightness.light,
-          ),
-          useMaterial3: true,
-          textTheme: GoogleFonts.interTextTheme(),
-        ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF6B46C1),
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-          textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-        ),
+
+        // ------------------------------------------------------------
+        // COPILOT BLUE THEME
+        // ------------------------------------------------------------
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
+
+        // ------------------------------------------------------------
+        // HOME SCREEN
+        // ------------------------------------------------------------
         home: const ChatScreen(),
       ),
     );

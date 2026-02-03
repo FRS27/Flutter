@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../services/research_service.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/chat_input.dart';
+import '../theme.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -13,13 +15,13 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  
+
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
-  
+
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       Future.delayed(const Duration(milliseconds: 100), () {
@@ -31,49 +33,54 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final researchService = Provider.of<ResearchService>(context);
     final messages = researchService.messages;
-    
-    // Auto-scroll when new messages arrive
+
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: AppTheme.copilotSurface,
+
+      // ------------------------------------------------------------
+      // HEADER
+      // ------------------------------------------------------------
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
+        titleSpacing: 0,
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.copilotBlueLight,
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                Icons.science,
-                color: Theme.of(context).colorScheme.primary,
-                size: 24,
+              child: const Icon(
+                Icons.auto_awesome,
+                color: AppTheme.copilotBlue,
+                size: 26,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'IntelliResearch AI',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.copilotDark,
+                      ),
                 ),
                 Text(
-                  'Multi-Agent Research Assistant',
+                  'Multi‑Agent Research Assistant',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                  ),
+                        color: AppTheme.copilotGrey,
+                      ),
                 ),
               ],
             ),
@@ -82,7 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           if (messages.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline, color: AppTheme.copilotGrey),
               onPressed: () {
                 showDialog(
                   context: context,
@@ -96,6 +103,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       TextButton(
                         onPressed: () {
+                          researchService.clearMessages();
                           Navigator.pop(context);
                         },
                         child: const Text('Clear'),
@@ -107,9 +115,12 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
         ],
       ),
+
+      // ------------------------------------------------------------
+      // BODY
+      // ------------------------------------------------------------
       body: Column(
         children: [
-          // Messages List
           Expanded(
             child: messages.isEmpty
                 ? _buildEmptyState(context)
@@ -122,8 +133,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                   ),
           ),
-          
-          // Input Area
+
+          // ------------------------------------------------------------
+          // INPUT BAR
+          // ------------------------------------------------------------
           ChatInput(
             onSubmit: (text) {
               researchService.startResearch(text);
@@ -134,7 +147,10 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-  
+
+  // ------------------------------------------------------------
+  // EMPTY STATE
+  // ------------------------------------------------------------
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Padding(
@@ -143,66 +159,66 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                color: AppTheme.copilotBlueLight,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.science_outlined,
+              child: const Icon(
+                Icons.auto_awesome,
                 size: 80,
-                color: Theme.of(context).colorScheme.primary,
+                color: AppTheme.copilotBlue,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             Text(
               'Welcome to IntelliResearch AI',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.copilotDark,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Text(
-              'Ask me to research any topic and I\'ll deploy multiple AI agents to gather information from the web, academic papers, and data sources.',
+              'Ask me to research any topic. I’ll deploy multiple AI agents to gather insights from the web, academic papers, and trusted sources.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-              ),
+                    color: AppTheme.copilotGrey,
+                  ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
-            _buildExampleCard(
-              context,
-              '🌍 Climate Change',
-              'Research the latest developments in climate science',
-            ),
+            const SizedBox(height: 36),
+            _exampleCard(context, '🌍 Climate Change',
+                'Latest developments in climate science'),
             const SizedBox(height: 12),
-            _buildExampleCard(
-              context,
-              '🤖 AI Ethics',
-              'Analyze current debates on AI safety and regulation',
-            ),
+            _exampleCard(context, '🤖 AI Ethics',
+                'Current debates on AI safety and regulation'),
             const SizedBox(height: 12),
-            _buildExampleCard(
-              context,
-              '🚀 Space Exploration',
-              'Latest missions and discoveries in space',
-            ),
+            _exampleCard(context, '🚀 Space Exploration',
+                'Recent missions and discoveries'),
           ],
         ),
       ),
     );
   }
-  
-  Widget _buildExampleCard(BuildContext context, String title, String description) {
+
+  Widget _exampleCard(
+      BuildContext context, String title, String description) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Colors.grey.shade300,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -213,24 +229,22 @@ class _ChatScreenState extends State<ChatScreen> {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.copilotDark,
+                      ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                  ),
+                        color: AppTheme.copilotGrey,
+                      ),
                 ),
               ],
             ),
           ),
-          Icon(
-            Icons.arrow_forward_ios,
-            size: 16,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          const Icon(Icons.arrow_forward_ios,
+              size: 16, color: AppTheme.copilotBlue),
         ],
       ),
     );

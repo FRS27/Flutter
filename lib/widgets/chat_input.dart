@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import '../theme.dart';
 
 class ChatInput extends StatefulWidget {
   final Function(String) onSubmit;
   final bool enabled;
-  
+
   const ChatInput({
     super.key,
     required this.onSubmit,
@@ -17,97 +18,115 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> {
   final TextEditingController _controller = TextEditingController();
   bool _hasText = false;
-  
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-  
+
   void _handleSubmit() {
     final text = _controller.text.trim();
     if (text.isEmpty || !widget.enabled) return;
-    
+
     widget.onSubmit(text);
     _controller.clear();
     setState(() => _hasText = false);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: AppTheme.copilotSurface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            blurRadius: 12,
             offset: const Offset(0, -2),
           ),
         ],
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: TextField(
-                    controller: _controller,
-                    enabled: widget.enabled,
-                    maxLines: null,
-                    textInputAction: TextInputAction.newline,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      hintText: 'What would you like to research?',
-                      hintStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                    ),
-                    onChanged: (text) {
-                      setState(() {
-                        _hasText = text.trim().isNotEmpty;
-                      });
-                    },
-                    onSubmitted: (_) => _handleSubmit(),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // ------------------------------------------------------------
+            // INPUT FIELD
+            // ------------------------------------------------------------
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: Colors.grey.shade300,
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Material(
-                color: _hasText && widget.enabled
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(24),
-                child: InkWell(
-                  onTap: _hasText && widget.enabled ? _handleSubmit : null,
-                  borderRadius: BorderRadius.circular(24),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.arrow_upward,
-                      color: _hasText && widget.enabled
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                child: TextField(
+                  controller: _controller,
+                  enabled: widget.enabled,
+                  maxLines: null,
+                  textInputAction: TextInputAction.newline,
+                  keyboardType: TextInputType.multiline,
+                  decoration: InputDecoration(
+                    hintText: 'Ask IntelliResearch AI…',
+                    hintStyle: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: 15,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 14,
                     ),
                   ),
+                  onChanged: (text) {
+                    setState(() {
+                      _hasText = text.trim().isNotEmpty;
+                    });
+                  },
+                  onSubmitted: (_) => _handleSubmit(),
                 ),
               ),
-            ],
-          ),
+            ),
+
+            const SizedBox(width: 10),
+
+            // ------------------------------------------------------------
+            // SEND BUTTON
+            // ------------------------------------------------------------
+            GestureDetector(
+              onTap: _hasText && widget.enabled ? _handleSubmit : null,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: _hasText && widget.enabled
+                      ? AppTheme.copilotBlue
+                      : Colors.grey.shade300,
+                  shape: BoxShape.circle,
+                  boxShadow: _hasText
+                      ? [
+                          BoxShadow(
+                            color: AppTheme.copilotBlue.withOpacity(0.4),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : [],
+                ),
+                child: Icon(
+                  Icons.arrow_upward_rounded,
+                  color: _hasText && widget.enabled
+                      ? Colors.white
+                      : Colors.grey.shade500,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

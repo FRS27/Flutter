@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+
 import '../models/message.dart';
 
 class ResearchService extends ChangeNotifier {
@@ -13,35 +14,54 @@ class ResearchService extends ChangeNotifier {
   bool _isProcessing = false;
   bool get isProcessing => _isProcessing;
 
+  // ------------------------------------------------------------
+  // MESSAGE HELPERS
+  // ------------------------------------------------------------
   void addUserMessage(String content) {
-    _messages.add(Message(
-      id: DateTime.now().toString(),
-      content: content,
-      isUser: true,
-      timestamp: DateTime.now(),
-    ));
+    _messages.add(
+      Message(
+        id: DateTime.now().toString(),
+        content: content,
+        isUser: true,
+        timestamp: DateTime.now(),
+        status: MessageStatus.sent,
+      ),
+    );
     notifyListeners();
   }
 
-  void addAIMessage(String content) {
-    _messages.add(Message(
-      id: DateTime.now().toString(),
-      content: content,
-      isUser: false,
-      timestamp: DateTime.now(),
-    ));
+  void addAIMessage(String content, {MessageStatus status = MessageStatus.sent}) {
+    _messages.add(
+      Message(
+        id: DateTime.now().toString(),
+        content: content,
+        isUser: false,
+        timestamp: DateTime.now(),
+        status: status,
+      ),
+    );
     notifyListeners();
   }
 
-  // ---------------------------------------------------------
-  // MAIN FUNCTION: Works exactly like Streamlit
-  // ---------------------------------------------------------
+  void clearMessages() {
+    _messages.clear();
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------
+  // MAIN RESEARCH FLOW (WITH POLLING)
+  // ------------------------------------------------------------
   Future<void> startResearch(String topic) async {
     if (_isProcessing) return;
 
     _isProcessing = true;
     addUserMessage(topic);
-    addAIMessage("🤖 Starting research on '$topic'...");
+
+    // "Thinking" / researching placeholder
+    addAIMessage(
+      "Agents are starting up and preparing your research...",
+      status: MessageStatus.researching,
+    );
     notifyListeners();
 
     try {
@@ -54,7 +74,10 @@ class ResearchService extends ChangeNotifier {
       );
 
       if (startRes.statusCode != 200) {
-        addAIMessage("❌ Server error: ${startRes.statusCode}");
+        _replaceLastAIMessage(
+          "❌ Server error: ${startRes.statusCode}",
+          status: MessageStatus.error,
+        );
         _isProcessing = false;
         notifyListeners();
         return;
@@ -63,10 +86,11 @@ class ResearchService extends ChangeNotifier {
       final startData = jsonDecode(startRes.body);
       final jobId = startData['job_id'];
 
-      // Replace "Starting..." message with "Working..."
-      _messages.removeLast();
-      addAIMessage("🔄 Agents are working... This may take 30–60 seconds.");
-      notifyListeners();
+      // Update placeholder text
+      _replaceLastAIMessage(
+        "🔄 Agents are working... This may take 30–60 seconds.",
+        status: MessageStatus.researching,
+      );
 
       // 2. Poll for results
       while (true) {
@@ -74,7 +98,10 @@ class ResearchService extends ChangeNotifier {
         final pollRes = await http.get(pollUrl);
 
         if (pollRes.statusCode != 200) {
-          addAIMessage("❌ Error fetching job status.");
+          _replaceLastAIMessage(
+            "❌ Error fetching job status.",
+            status: MessageStatus.error,
+          );
           break;
         }
 
@@ -88,24 +115,46 @@ class ResearchService extends ChangeNotifier {
 
         if (status == "completed") {
           final result = pollData['result'] ?? "No result returned.";
-          _messages.removeLast(); // Remove "working..." message
-          addAIMessage(result);
+          _replaceLastAIMessage(
+            result,
+            status: MessageStatus.complete,
+          );
           break;
         }
 
         if (status == "failed") {
           final error = pollData['result'] ?? "Unknown error.";
-          _messages.removeLast();
-          addAIMessage("❌ Research failed:\n$error");
+          _replaceLastAIMessage(
+            "❌ Research failed:\n$error",
+            status: MessageStatus.error,
+          );
           break;
         }
       }
     } catch (e) {
-      _messages.removeLast();
-      addAIMessage("❌ Connection Error: $e\nMake sure backend is running.");
+      _replaceLastAIMessage(
+        "❌ Connection Error: $e\nMake sure backend is running.",
+        status: MessageStatus.error,
+      );
     } finally {
       _isProcessing = false;
       notifyListeners();
     }
+  }
+
+  // ------------------------------------------------------------
+  // INTERNAL: UPDATE LAST AI MESSAGE
+  // ------------------------------------------------------------
+  void _replaceLastAIMessage(String content, {MessageStatus? status}) {
+    for (int i = _messages.length - 1; i >= 0; i--) {
+      if (!_messages[i].isUser) {
+        _messages[i] = _messages[i].copyWith(
+          content: content,
+          status: status ?? _messages[i].status,
+        );
+        break;
+      }
+    }
+    notifyListeners();
   }
 }
