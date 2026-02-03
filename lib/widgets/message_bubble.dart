@@ -61,7 +61,7 @@ class _MessageBubbleState extends State<MessageBubble> {
         children: [
           if (!isUser) ...[
             _buildAvatar(isUser),
-            const SizedBox(width: 12),
+            const SizedBox(width: 11),
           ],
           Flexible(
             child: Column(
@@ -205,7 +205,9 @@ class _MessageBubbleState extends State<MessageBubble> {
           // DARK TERMINAL LOG BOX
           if (_expanded && message.logs.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Container(
+            SizedBox(
+            width: 600,
+            child: Container(
               constraints: const BoxConstraints(
                 minHeight: 200,
                 maxHeight: 400,
@@ -322,6 +324,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                 ],
               ),
             ),
+            )
           ],
 
           // Empty state
