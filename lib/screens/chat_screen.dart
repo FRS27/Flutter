@@ -42,7 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
     return Scaffold(
-      backgroundColor: AppTheme.copilotSurface,
+      backgroundColor: Colors.transparent,
 
       // ------------------------------------------------------------
       // HEADER
@@ -89,7 +89,10 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           if (messages.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppTheme.copilotGrey),
+              icon: const Icon(
+                Icons.delete_outline,
+                color: AppTheme.copilotGrey,
+              ),
               onPressed: () {
                 showDialog(
                   context: context,
@@ -117,33 +120,46 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
 
       // ------------------------------------------------------------
-      // BODY
+      // BODY WITH GRADIENT BACKGROUND
       // ------------------------------------------------------------
-      body: Column(
-        children: [
-          Expanded(
-            child: messages.isEmpty
-                ? _buildEmptyState(context)
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      return MessageBubble(message: messages[index]);
-                    },
-                  ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFF9FBFF),
+              Color(0xFFF3F7FF),
+              Color(0xFFE8F0FF),
+            ],
           ),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: messages.isEmpty
+                  ? _buildEmptyState(context, researchService)
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        return MessageBubble(message: messages[index]);
+                      },
+                    ),
+            ),
 
-          // ------------------------------------------------------------
-          // INPUT BAR
-          // ------------------------------------------------------------
-          ChatInput(
-            onSubmit: (text) {
-              researchService.startResearch(text);
-            },
-            enabled: !researchService.isProcessing,
-          ),
-        ],
+            // ------------------------------------------------------------
+            // INPUT BAR
+            // ------------------------------------------------------------
+            ChatInput(
+              onSubmit: (text) {
+                researchService.startResearch(text);
+              },
+              enabled: !researchService.isProcessing,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -151,7 +167,8 @@ class _ChatScreenState extends State<ChatScreen> {
   // ------------------------------------------------------------
   // EMPTY STATE
   // ------------------------------------------------------------
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(
+      BuildContext context, ResearchService researchService) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -188,14 +205,26 @@ class _ChatScreenState extends State<ChatScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 36),
-            _exampleCard(context, '🌍 Climate Change',
-                'Latest developments in climate science'),
+            _exampleCard(
+              context,
+              '🌍 Climate Change',
+              'Latest developments in climate science',
+              onTap: () => researchService.startResearch('Climate Change'),
+            ),
             const SizedBox(height: 12),
-            _exampleCard(context, '🤖 AI Ethics',
-                'Current debates on AI safety and regulation'),
+            _exampleCard(
+              context,
+              '🤖 AI Ethics',
+              'Current debates on AI safety and regulation',
+              onTap: () => researchService.startResearch('AI Ethics'),
+            ),
             const SizedBox(height: 12),
-            _exampleCard(context, '🚀 Space Exploration',
-                'Recent missions and discoveries'),
+            _exampleCard(
+              context,
+              '🚀 Space Exploration',
+              'Recent missions and discoveries',
+              onTap: () => researchService.startResearch('Space Exploration'),
+            ),
           ],
         ),
       ),
@@ -203,49 +232,60 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _exampleCard(
-      BuildContext context, String title, String description) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.grey.shade300,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+    BuildContext context,
+    String title,
+    String description, {
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Colors.grey.shade300,
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.copilotDark,
-                      ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.copilotGrey,
-                      ),
-                ),
-              ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             ),
-          ),
-          const Icon(Icons.arrow_forward_ios,
-              size: 16, color: AppTheme.copilotBlue),
-        ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.copilotDark,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.copilotGrey,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: AppTheme.copilotBlue,
+            ),
+          ],
+        ),
       ),
     );
   }

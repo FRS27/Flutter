@@ -30,7 +30,8 @@ class ResearchService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addAIMessage(String content, {MessageStatus status = MessageStatus.sent}) {
+  void addAIMessage(String content,
+      {MessageStatus status = MessageStatus.sent, List<String> logs = const []}) {
     _messages.add(
       Message(
         id: DateTime.now().toString(),
@@ -38,6 +39,7 @@ class ResearchService extends ChangeNotifier {
         isUser: false,
         timestamp: DateTime.now(),
         status: status,
+        logs: logs,
       ),
     );
     notifyListeners();
@@ -49,7 +51,7 @@ class ResearchService extends ChangeNotifier {
   }
 
   // ------------------------------------------------------------
-  // MAIN RESEARCH FLOW (WITH POLLING)
+  // MAIN RESEARCH FLOW (WITH POLLING + LOGS)
   // ------------------------------------------------------------
   Future<void> startResearch(String topic) async {
     if (_isProcessing) return;
@@ -57,11 +59,13 @@ class ResearchService extends ChangeNotifier {
     _isProcessing = true;
     addUserMessage(topic);
 
-    // "Thinking" / researching placeholder
+    // Initial placeholder thinking bubble
     addAIMessage(
       "Agents are starting up and preparing your research...",
       status: MessageStatus.researching,
+      logs: [],
     );
+
     notifyListeners();
 
     try {
@@ -88,11 +92,13 @@ class ResearchService extends ChangeNotifier {
 
       // Update placeholder text
       _replaceLastAIMessage(
-        "🔄 Agents are working... This may take 30–60 seconds.",
+        "🔄 Agents are working…",
         status: MessageStatus.researching,
       );
 
       // 2. Poll for results
+      List<String> previousLogs = [];
+
       while (true) {
         final pollUrl = Uri.parse('$baseUrl/research/$jobId');
         final pollRes = await http.get(pollUrl);
@@ -108,8 +114,17 @@ class ResearchService extends ChangeNotifier {
         final pollData = jsonDecode(pollRes.body);
         final status = pollData['status'];
 
+        // Extract logs (cleaned by backend)
+        final logs = (pollData['logs'] as List?)?.cast<String>() ?? [];
+
+        // Only update if new logs arrived
+        if (logs.length != previousLogs.length) {
+          previousLogs = logs;
+          _updateLastAILogs(logs);
+        }
+
         if (status == "running") {
-          await Future.delayed(const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 2));
           continue;
         }
 
@@ -143,7 +158,7 @@ class ResearchService extends ChangeNotifier {
   }
 
   // ------------------------------------------------------------
-  // INTERNAL: UPDATE LAST AI MESSAGE
+  // INTERNAL HELPERS
   // ------------------------------------------------------------
   void _replaceLastAIMessage(String content, {MessageStatus? status}) {
     for (int i = _messages.length - 1; i >= 0; i--) {
@@ -152,6 +167,17 @@ class ResearchService extends ChangeNotifier {
           content: content,
           status: status ?? _messages[i].status,
         );
+        break;
+      }
+    }
+    notifyListeners();
+  }
+
+  void _updateLastAILogs(List<String> logs) {
+    for (int i = _messages.length - 1; i >= 0; i--) {
+      if (!_messages[i].isUser &&
+          _messages[i].status == MessageStatus.researching) {
+        _messages[i] = _messages[i].copyWith(logs: logs);
         break;
       }
     }
