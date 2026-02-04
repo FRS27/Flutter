@@ -58,10 +58,10 @@ class _ChatInputState extends State<ChatInput> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 218, 5, 5),
+                  color: const Color.fromARGB(255, 255, 255, 255),
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: Colors.grey.shade300,
+                    color: const Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
                 child: TextField(

@@ -41,7 +41,7 @@ class _ThinkingIndicatorState extends State<ThinkingIndicator>
     return FadeTransition(
       opacity: _pulse,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
         decoration: BoxDecoration(
           color: AppTheme.copilotBlueLight,
           borderRadius: BorderRadius.circular(16),

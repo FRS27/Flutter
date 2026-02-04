@@ -49,40 +49,11 @@ class _ChatScreenState extends State<ChatScreen> {
       // ------------------------------------------------------------
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
         titleSpacing: 0,
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppTheme.copilotBlueLight,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.auto_awesome,
-                color: AppTheme.copilotBlue,
-                size: 26,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'IntelliResearch AI',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.copilotDark,
-                      ),
-                ),
-                Text(
-                  'Multi‑Agent Research Assistant',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.copilotGrey,
-                      ),
-                ),
-              ],
             ),
           ],
         ),
@@ -91,7 +62,7 @@ class _ChatScreenState extends State<ChatScreen> {
             IconButton(
               icon: const Icon(
                 Icons.delete_outline,
-                color: AppTheme.copilotGrey,
+                color: Color.fromARGB(255, 25, 83, 199),
               ),
               onPressed: () {
                 showDialog(
@@ -128,9 +99,9 @@ class _ChatScreenState extends State<ChatScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFF9FBFF),
-              Color(0xFFF3F7FF),
-              Color(0xFFE8F0FF),
+              Color.fromARGB(255, 255, 255, 255),
+              Color.fromARGB(255, 211, 223, 247),
+              Color.fromARGB(255, 190, 208, 241),
             ],
           ),
         ),
@@ -176,20 +147,20 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: AppTheme.copilotBlueLight,
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.auto_awesome,
-                size: 80,
+                size: 40,
                 color: AppTheme.copilotBlue,
               ),
             ),
             const SizedBox(height: 28),
             Text(
-              'Welcome to IntelliResearch AI',
+              'IntelliResearch AI',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppTheme.copilotDark,
@@ -198,32 +169,25 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Ask me to research any topic. I’ll deploy multiple AI agents to gather insights from the web, academic papers, and trusted sources.',
+              'Ask me to research any topic.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppTheme.copilotGrey,
                   ),
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 36),
-            _exampleCard(
-              context,
-              '🌍 Climate Change',
-              'Latest developments in climate science',
-              onTap: () => researchService.startResearch('Climate Change'),
             ),
             const SizedBox(height: 12),
             _exampleCard(
               context,
               '🤖 AI Ethics',
               'Current debates on AI safety and regulation',
-              onTap: () => researchService.startResearch('AI Ethics'),
+              onTap: () => researchService.startResearch('Tell me about the current debates on AI safety and regulation'),
             ),
             const SizedBox(height: 12),
             _exampleCard(
               context,
               '🚀 Space Exploration',
               'Recent missions and discoveries',
-              onTap: () => researchService.startResearch('Space Exploration'),
+              onTap: () => researchService.startResearch('Tell me about Space Exploration'),
             ),
           ],
         ),

@@ -70,9 +70,9 @@ class _MessageBubbleState extends State<MessageBubble> {
               children: [
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isUser ? AppTheme.copilotBlue : Colors.white,
+                    color: isUser ? const Color.fromARGB(255, 0, 0, 0) : Colors.white,
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
@@ -143,7 +143,7 @@ class _MessageBubbleState extends State<MessageBubble> {
         message.content,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 16,
+          fontSize: 13,
           height: 1.4,
         ),
       );
@@ -155,7 +155,7 @@ class _MessageBubbleState extends State<MessageBubble> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const ThinkingIndicator(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Stats row
           if (message.logs.isNotEmpty)
@@ -175,7 +175,7 @@ class _MessageBubbleState extends State<MessageBubble> {
           GestureDetector(
             onTap: () => setState(() => _expanded = !_expanded),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: AppTheme.copilotBlueLight,
                 borderRadius: BorderRadius.circular(6),
@@ -204,7 +204,7 @@ class _MessageBubbleState extends State<MessageBubble> {
 
           // DARK TERMINAL LOG BOX
           if (_expanded && message.logs.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             SizedBox(
             width: 600,
             child: Container(
@@ -236,9 +236,9 @@ class _MessageBubbleState extends State<MessageBubble> {
                     children: [
                       Container(
                         width: 10,
-                        height: 10,
+                        height: 8,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFFF5F56),
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -368,8 +368,8 @@ class _MessageBubbleState extends State<MessageBubble> {
       styleSheet: MarkdownStyleSheet(
         p: const TextStyle(
           color: AppTheme.copilotDark,
-          fontSize: 16,
-          height: 1.45,
+          fontSize: 13,
+          height: 1.4,
         ),
         h1: const TextStyle(
           fontSize: 24,
@@ -404,10 +404,10 @@ class _MessageBubbleState extends State<MessageBubble> {
   // ------------------------------------------------------------
   Widget _buildAvatar(bool isUser) {
     return Container(
-      width: 38,
-      height: 38,
+      width: 30,
+      height: 30,
       decoration: BoxDecoration(
-        color: isUser ? AppTheme.copilotBlue : AppTheme.copilotBlueLight,
+        color: isUser ? const Color.fromARGB(255, 4, 130, 255) : AppTheme.copilotBlueLight,
         shape: BoxShape.circle,
       ),
       child: Icon(
